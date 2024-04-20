@@ -1,9 +1,10 @@
 const User = require("../models/User.model");
 const bcrypt = require("bcryptjs");
+const { errorHandler } = require("../utils/error")
 const signup = (req, res, next) => {
     const { username, email, password } = req.body; {
         if (!username || !email || !password || username === '' || email === '' || password === '') {
-            return res.status(400).json({ message: "ALL FIELDS SHOULD BE FIELD" });
+            return next(errorHandler(400, "ALL FIELDS ARE REQUIRED"));
         }
         let hashedPassword = "";
         bcrypt.hash(password, 12)
@@ -14,10 +15,10 @@ const signup = (req, res, next) => {
                 const newUser = new User({ username: username, email: email, password: hashedPassword });
                 newUser.save()
                     .then(res => res.json("signup successful"))
-                    .catch(err => res.json(err))
+                    .catch(err => next(err))
             })
             .catch(err => {
-                console.log(err);
+                next(err);
             })
 
 
