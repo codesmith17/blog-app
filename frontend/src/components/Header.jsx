@@ -3,7 +3,6 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "flowbite-react";
 import { FaMoon } from "react-icons/fa";
-import { TiThMenu } from "react-icons/ti";
 import { AiOutlineSearch } from "react-icons/ai";
 const Header = () => {
   const path = useLocation().pathname;
@@ -34,7 +33,7 @@ const Header = () => {
           <FaMoon />
         </Button>
         <Link to="/sign-in">
-          <Button gradientDuoTone="purpleToBlue" color="gray" pill>
+          <Button gradientDuoTone="purpleToBlue" color="gray" pill outline>
             Sign In
           </Button>
         </Link>
