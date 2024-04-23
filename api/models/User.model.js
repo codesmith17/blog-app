@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: false,
+    },
+    profilePicture: {
+        type: String,
+        default: "https://wallpapercave.com/wp/wp12696718.jpg"
     }
 }, { timestamps: true })
 
