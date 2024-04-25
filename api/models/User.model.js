@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema({
     profilePicture: {
         type: String,
         default: "https://wallpapercave.com/wp/wp12696718.jpg"
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false,
     }
 }, { timestamps: true })
 

@@ -45,7 +45,8 @@ const signin = (req, res, next) => {
                     }
 
                     const token = jwt.sign({
-                        id: user._id
+                        id: user._id,
+                        isAdmin: user.isAdmin
                     }, process.env.JWT_SECRET);
 
                     // Set cookie and send response
