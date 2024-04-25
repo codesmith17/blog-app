@@ -7,59 +7,63 @@ const test = (req, res, next) => {
 };
 
 const updateUser = (req, res, next) => {
-    if (req.user._id !== req.params.id) {
-        return next(errorHandler(403, "YOU ARE NOT ALLOWED TO UPDATE THIS USER"));
+    if (req.user.id !== req.params.userId) {
+        return next(errorHandler(403, 'You are not allowed to update this user'));
     }
 
-    if (req.body.password && req.body.password.length < 6) {
-        return next(errorHandler(400, "PASSWORD LENGTH SHOULD BE AT LEAST 6"));
-    }
-
-    if (req.body.username && (req.body.username.length < 7 || req.body.username.length > 20)) {
-        return next(errorHandler(400, "USERNAME LENGTH SHOULD BE BETWEEN 7 AND 20"));
-    }
-
-    if (req.body.username && req.body.username !== req.body.username.toLowerCase()) {
-        return next(errorHandler(400, "USERNAME MUST BE LOWERCASE"));
-    }
-
-    if (req.body.username && req.body.username.includes(" ")) {
-        return next(errorHandler(400, "USERNAME CANNOT CONTAIN SPACES"));
-    }
-
-    if (req.body.username && !req.body.username.match(/^[a-zA-Z0-9]+$/)) {
-        return next(errorHandler(400, "USERNAME CAN ONLY CONTAIN NUMBERS AND CHARACTERS"));
-    }
-
-    const updateUserObject = {};
-    if (req.body.username) updateUserObject.username = req.body.username;
-    if (req.body.email) updateUserObject.email = req.body.email;
-    if (req.body.profilePicture) updateUserObject.profilePicture = req.body.profilePicture;
     if (req.body.password) {
-        bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
-            if (err) return next(err);
-            updateUserObject.password = hashedPassword;
-            updateUserObject.updatedAt = new Date();
-            updateUserObject.save()
-                .then(updatedUser => {
-                    const { password, ...rest } = updatedUser._doc;
-                    res.status(200).json(rest);
-                })
-                .catch(err => {
-                    next(err);
-                });
+        if (req.body.password.length < 6) {
+            return next(errorHandler(400, 'Password must be at least 6 characters'));
+        }
+        req.body.password = bcrypt.hashSync(req.body.password, 10);
+    }
+
+    if (req.body.username) {
+        if (req.body.username.length < 7 || req.body.username.length > 20) {
+            return next(
+                errorHandler(400, 'Username must be between 7 and 20 characters')
+            );
+        }
+        if (req.body.username.includes(' ')) {
+            return next(errorHandler(400, 'Username cannot contain spaces'));
+        }
+        if (req.body.username !== req.body.username.toLowerCase()) {
+            return next(errorHandler(400, 'Username must be lowercase'));
+        }
+        if (!req.body.username.match(/^[a-zA-Z0-9]+$/)) {
+            return next(
+                errorHandler(400, 'Username can only contain letters and numbers')
+            );
+        }
+    }
+
+    User.findByIdAndUpdate(
+            req.params.userId, {
+                $set: {
+                    username: req.body.username,
+                    email: req.body.email,
+                    profilePicture: req.body.profilePicture,
+                    password: req.body.password,
+                },
+            }, { new: true }
+        )
+        .then((updatedUser) => {
+            const { password, ...rest } = updatedUser._doc;
+            res.status(200).json(rest);
+        })
+        .catch((error) => {
+            next(error);
         });
-    } else {
-        updateUserObject.updatedAt = new Date();
-        User.findByIdAndUpdate(req.params.userId, updateUserObject, { new: true })
-            .then(updatedUser => {
-                const { password, ...rest } = updatedUser._doc;
-                res.status(200).json(rest);
-            })
-            .catch(err => {
-                next(err);
-            });
+};
+const deleteUser = async(req, res, next) => {
+    if (req.user.id !== req.params.userId) {
+        return next(errorHandler(403, 'You are not allowed to delete this user'));
+    }
+    try {
+        await User.findByIdAndDelete(req.params.userId);
+        res.status(200).json('User has been deleted');
+    } catch (error) {
+        next(error);
     }
 };
-
-module.exports = { test, updateUser };
+module.exports = { test, updateUser, deleteUser };
