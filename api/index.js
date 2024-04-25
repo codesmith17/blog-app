@@ -1,4 +1,5 @@
 const express = require("express");
+
 const app = express();
 const postRoutes = require("./routes/Post.route");
 const dotenv = require("dotenv")
@@ -6,6 +7,8 @@ const mongoose = require("mongoose");
 const userRoutes = require("./routes/User.route");
 const authRoutes = require("./routes/Auth.route");
 const commentRoutes = require("./routes/Comment.route");
+const path = require("path");
+
 const cookieParser = require("cookie-parser");
 dotenv.config();
 app.use(express.json());
@@ -19,6 +22,10 @@ app.use("/api/post", postRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use('/api/comment', commentRoutes);
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+app.get("*", (req, res, next) => {
+    res.sendFile(path.join(__dirname, "client", "dist", "index.html"))
+})
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || "INTERNAL SERVER ERROR";
