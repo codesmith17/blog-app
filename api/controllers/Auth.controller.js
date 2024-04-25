@@ -1,7 +1,7 @@
 const User = require("../models/User.model");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
-const { errorHandler } = require("../utils/error");
+const errorHandler = require("../utils/error");
 const jwt = require("jsonwebtoken");
 dotenv.config();
 const signup = (req, res, next) => {
